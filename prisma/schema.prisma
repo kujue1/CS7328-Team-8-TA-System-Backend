@@ -1,13 +1,8 @@
 // define your database configuration here
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
-}
-
-generator client {
-    provider = "prisma-client-js"
-    output   = "../dist/prisma"
+  provider = "mysql"
+  url      = "mysql://root:123456@localhost:3306/ebean_prisma?autoReconnect=true&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
 }
 
 // define the data model here
@@ -30,6 +25,7 @@ model User {
   receivedMessages       UserMessage[]  @relation(name: "MessageReceiver") // Relation to received messages
   taEvaluationsAsTA      TAEvaluation[] @relation("TaEvaluations")
   taEvaluationsAsFaculty TAEvaluation[] @relation("FacultyEvaluations")
+  TAEvaluation           TAEvaluation[]
 }
 
 model Faculty {
@@ -60,7 +56,7 @@ model Course {
   id            Int             @id @default(autoincrement())
   courseCode    String          @unique
   title         String
-  description   String?
+  description   String?         @db.Text
   faculties     FacultyCourse[]
   students      StudentCourse[]
   tas           CourseTA[] // Opposite relation field for CourseTA
@@ -159,4 +155,20 @@ model TAEvaluation {
   taUser      User   @relation(name: "TaEvaluations", fields: [taUserId], references: [id])
   facultyUser User   @relation(name: "FacultyEvaluations", fields: [facultyUserId], references: [id])
   course      Course @relation(fields: [courseId], references: [id])
+  User        User?  @relation(fields: [userId], references: [id])
+  userId      Int?
+}
+
+// added new schema module notification
+model Task {
+  facultyId   Int
+  studentId   Int
+  title       String
+  description String?
+  TaskId      Int     @id @default(autoincrement())
+  completed   Boolean @default(false)
+}
+
+generator client {
+  provider = "prisma-client-js"
 }

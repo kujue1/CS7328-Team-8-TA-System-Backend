@@ -6,16 +6,13 @@ import tajobRoutes from './modules/tajobs/tajob.routes';
 import messageRoutes from './modules/message/message.routes';
 import taPerformanceRoute from './modules/taPerformance/taPerformance.routes';
 import courseRoutes from './modules/course/course.routes';
-
+import taskRoutes from './modules/tasks/tasks.routes';
 
 // middleware
 import { verifyToken } from "./middleware/authentication";
 
 
 const app = express();
-app.use(cors({
-  origin: 'http://localhost:3000'
-}));
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -53,9 +50,9 @@ app.use('/ta-application', verifyToken, taApplicationRoutes);
 app.use('/jobs', verifyToken, tajobRoutes);
 app.use('/api/ta-performance', taPerformanceRoute);
 app.use('/course', verifyToken, courseRoutes);
-
-app.get("/", (req, res) => {
-  res.status(200).send("Hello World!");
+app.use('/tasks', verifyToken, taskRoutes);
+app.get('/', (req, res) => {
+  res.status(200).send('Hello World!');
 });
 
 export default app;

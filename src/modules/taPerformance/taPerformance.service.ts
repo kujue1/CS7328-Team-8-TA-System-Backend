@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from 'prisma';
 import { TAEvaluationData } from './taPerformance.types';
 
-const prisma = new PrismaClient();
+
 
 /**
  * Create a new TA evaluation record in the database
@@ -32,4 +32,37 @@ export async function getAllEvaluations() {
             }
         }
     });
+}
+
+
+export async function getCoursesAndTAsForFaculty(facultyUserId: number) {
+    // get information base the facultyUserId
+    const facultyCourses = await prisma.facultyCourse.findMany({
+        where: { facultyId: facultyUserId },
+        include: {
+            course: {
+                include: {
+                    tas: {
+                        include: {
+                            student: {
+                                include: {
+                                    user: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return facultyCourses.map(fc => ({
+        courseId: fc.course.id,
+        courseCode: fc.course.courseCode,
+        courseTitle: fc.course.title,
+        tas: fc.course.tas.map(ta => ({
+            studentUsername: ta.student.user.username,
+            smuNo: ta.student.user.smuNo
+        }))
+    }));
 }
